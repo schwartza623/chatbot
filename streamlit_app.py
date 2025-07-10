@@ -4,18 +4,13 @@ import openai
 # App title
 st.title("Cold Call AI Sales Assistant")
 
-# Input for API key
+# Ask for OpenAI API key directly
 api_key = st.text_input("🔑 Enter your OpenAI API Key", type="password")
+if not api_key:
+    st.info("Please enter your OpenAI API key to continue.")
+    st.stop()
 
-# Instructions
-st.write("Paste a snippet of your call below, and get real-time response suggestions.")
-
-# Input transcript from user
-user_input = st.text_area("Call Transcript So Far:", height=250)
-
-# Only proceed if both API key and transcript are entered
-if api_key and user_input.strip():
-    openai.api_key = api_key
+openai.api_key = api_key
 
     # Define the prompt template for GPT
     prompt_template = (
