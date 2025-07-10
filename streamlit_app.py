@@ -42,7 +42,4 @@ try:
 except Exception as e:
         st.error(f"Error: {str(e)}")
 
-elif not api_key:
-    st.info("Please enter your OpenAI API Key to begin.")
-elif not user_input.strip():
-    st.info("Start by entering a portion of your call transcript.")
+
