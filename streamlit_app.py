@@ -23,7 +23,7 @@ prompt_template = (
         f"Transcript:\n{user_input}\n\nResponse Suggestions:"
     )
 
-    try:
+try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
