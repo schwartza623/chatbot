@@ -1,56 +1,55 @@
 import streamlit as st
-from openai import OpenAI
+import openai
 
-# Show title and description.
-st.title("💬 Chatbot")
-st.write(
-    "This is a simple chatbot that uses OpenAI's GPT-3.5 model to generate responses. "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-    "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
-)
+# App title
+st.title("Cold Call AI Sales Assistant")
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
-if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
-else:
+# Input for API key
+api_key = st.text_input("🔑 Enter your OpenAI API Key", type="password")
 
-    # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+# Instructions
+st.write("Paste a snippet of your call below, and get real-time response suggestions.")
 
-    # Create a session state variable to store the chat messages. This ensures that the
-    # messages persist across reruns.
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+# Input transcript from user
+user_input = st.text_area("Call Transcript So Far:", height=250)
 
-    # Display the existing chat messages via `st.chat_message`.
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+# Only proceed if both API key and transcript are entered
+if api_key and user_input.strip():
+    openai.api_key = api_key
 
-    # Create a chat input field to allow the user to enter a message. This will display
-    # automatically at the bottom of the page.
-    if prompt := st.chat_input("What is up?"):
+    # Define the prompt template for GPT
+    prompt_template = (
+        "You are an AI assistant for a commercial real estate agent specializing in multifamily buildings "
+        "in Bed-Stuy and Bushwick, Brooklyn. Based on the ongoing cold call transcript below, suggest what "
+        "the agent should say next.\n\n"
+        "The suggestions should be focused on:\n"
+        "- Overcoming objections\n"
+        "- Proposing a complimentary property valuation or proposal\n"
+        "- Asking the right follow-up questions to gauge interest\n"
+        "- Highlighting value of Marcus & Millichap’s platform\n\n"
+        f"Transcript:\n{user_input}\n\nResponse Suggestions:"
+    )
 
-        # Store and display the current prompt.
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        # Generate a response using the OpenAI API.
-        stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
             messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
+                {"role": "system", "content": "You are an AI assistant for a real estate agent cold calling."},
+                {"role": "user", "content": prompt_template}
+            ]
         )
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
-        with st.chat_message("assistant"):
-            response = st.write_stream(stream)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        if response.get('choices'):
+            suggestions = response['choices'][0]['message']['content']
+            st.subheader("🧠 Suggested Responses:")
+            st.write(suggestions)
+        else:
+            st.warning("No suggestions were returned. Please try again.")
+
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
+
+elif not api_key:
+    st.info("Please enter your OpenAI API Key to begin.")
+elif not user_input.strip():
+    st.info("Start by entering a portion of your call transcript.")
