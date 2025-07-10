@@ -10,8 +10,8 @@ if not openai_api_key:
 openai.api_key = openai_api_key
 
 
-    # Define the prompt template for GPT
-    prompt_template = (
+# Define the prompt template for GPT
+prompt_template = (
         "You are an AI assistant for a commercial real estate agent specializing in multifamily buildings "
         "in Bed-Stuy and Bushwick, Brooklyn. Based on the ongoing cold call transcript below, suggest what "
         "the agent should say next.\n\n"
