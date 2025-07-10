@@ -5,7 +5,7 @@ import openai
 st.title("Cold Call AI Sales Assistant")
 
 # Ask for OpenAI API key directly
-api_key = st.text_input("🔑 Enter your OpenAI API Key", type="password")
+api_key = st.text_input("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")
 if not api_key:
     st.info("Please enter your OpenAI API key to continue.")
     st.stop()
