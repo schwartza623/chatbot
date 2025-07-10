@@ -39,7 +39,7 @@ try:
         else:
             st.warning("No suggestions were returned. Please try again.")
 
-    except Exception as e:
+except Exception as e:
         st.error(f"Error: {str(e)}")
 
 elif not api_key:
